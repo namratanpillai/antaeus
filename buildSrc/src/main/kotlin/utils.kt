@@ -17,6 +17,8 @@ fun Project.kotlinProject() {
         "implementation"("org.slf4j:slf4j-simple:1.7.30")
         "implementation"("io.github.microutils:kotlin-logging:1.7.8")
 
+        "implementation"("org.quartz-scheduler:quartz:2.2.3")
+
         // Mockk
         "testImplementation"("io.mockk:mockk:1.9.3")
 
@@ -34,5 +36,12 @@ fun Project.dataLibs() {
     dependencies {
         "implementation"("org.jetbrains.exposed:exposed:0.17.7")
         "implementation"("org.xerial:sqlite-jdbc:3.30.1")
+    }
+
+    fun Project.dataLibsCore() {
+        dependencies {
+            "implementation"("org.jetbrains.exposed:exposed:0.17.7")
+            "implementation"("org.xerial:sqlite-jdbc:3.30.1")
+        }
     }
 }
