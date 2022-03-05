@@ -5,5 +5,17 @@ enum class Currency {
     USD,
     DKK,
     SEK,
-    GBP
+    GBP;
+
+
+
+    companion object {
+        fun getCurrencies(): List<String> {
+            return InvoiceStatus.values().map {
+                it.toString()
+            }
+        }
+    }
 }
+
+
