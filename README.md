@@ -93,15 +93,15 @@ Happy hacking 😁!
 
 ***
 
-##Approaches
+## Approaches
 
 Though the problem looked easy, on diving into it deeper I realised I was wrong!  
 
-__Antaeus__  :wrestling: :women_wrestling: Nam 
+__Antaeus__  :wrestling: :women_wrestling: __Nam__
 
 I started out with two high level approaches:
-* Run a polling job at a constant rate :arrow_right: Job picks the PENDING, FAILED invoices :arrow_right: In case of a PENDING Invoice-> checks if it's the 1st in the country/timezone FAILED Invoice-> Passes for processing regardless :arrow_right: Producer/Consumer model processes the invoices by asynchronously calling the payment provider :arrow_right: Done :moneybag:
-*Configure a DB driven Scheduler :arrow_right: Invoices are pushed for processing as per the timezone :arrow_right: Push invoices to channel, open coroutines to read from it and then open async call to payment provider :arrow_right: The success and failure status is noted in a tracking table and invoices table :arrow_right: To run ADHOC/FAILED payments provide REST endpoint :arrow_right: Done :moneybag:
+* Run a polling job at a constant rate :arrow_right: Job picks the PENDING, FAILED invoices :arrow_right: In case of a __PENDING__ Invoice-> checks if it's the 1st in the country/timezone __FAILED__ Invoice-> Passes for processing regardless :arrow_right: Producer/Consumer model processes the invoices by asynchronously calling the payment provider :arrow_right: Done :moneybag:
+* Configure a DB driven Scheduler :arrow_right: Invoices are pushed for processing as per the timezone :arrow_right: Push invoices to channel, open coroutines to read from it and then open async call to payment provider :arrow_right: The success and failure status is noted in a tracking table and invoices table :arrow_right: To run ADHOC/FAILED payments provide REST endpoint :arrow_right: Done :moneybag:
 
 ### I swiped Right on :purple_heart: :purple_heart:
 
@@ -109,9 +109,9 @@ I started out with two high level approaches:
 * Failure retries specifically for payments must be performed post analysis/mentoring of the reason. Auto retries may not be the most ideal route to follow.
 * Since it is scheduled  job we can provide a flexibility to reschedule etc.
 
-##Project specifics
+## Project specifics
 
-###Assumptions made/ A little Personal touch :salt::
+### Assumptions made/ A little Personal touch :salt::
 
 1. The billing is always performed as per the customers country timezone. 
 2. In addition to the currency, I also added countries, and made a country :left_right_arrow: currency mapping. I am aware the mapping is not direct but considered it for the project.
@@ -120,7 +120,7 @@ I started out with two high level approaches:
 status into the invoice table, decided to create a separate table for tracking these responses. Took this approach because in the future we may want a more detailed third party response tracking!
 5. Added a [paymentProcessingDate], to allow pushing future dated payments. This field ensures we don't bill the customer  for March in January! 
 
-###Features Implemented
+### Features Implemented
 
 * Scheduling
     Ensured to implement Transaction management, Chunk based processing and Rescheduling.
@@ -137,10 +137,7 @@ status into the invoice table, decided to create a separate table for tracking t
         [CronJobService] schedules all the valid jobs.
         Performing background processing in a chunk based model, in the background using __Quartz+ Channel+ coroutines__.
         
-    2. REST Endpoint to reschedule already existing job by providing unique trigger.
-    
-        
-        
+    2. REST Endpoint to reschedule already existing job by providing unique trigger.   
         
 * Data Validation
     * Performed basic validations on the source data before such as:
@@ -148,14 +145,14 @@ status into the invoice table, decided to create a separate table for tracking t
         2. validate amounts(non negative,non zero)
         3. validate countries supported 
       This ensures that only valid data is passed through for processing, thereby increasing efficiency. Smart work over ~~Hardwork~~.
-     * REST Request validations. Ensures meaningful responses are passed back in case of invalid data. Also makes sure that only correct and supported requests are passed through. 
-      
+     * REST Request validations. Ensures meaningful responses are passed back in case of invalid data. Also makes sure that only correct and supported requests are passed through.     
       
 * Payments Processing 
     * [BillingService] Open out parallel asynchronous connections to the Payment Provider in chunks(10). Thereby Improving performance.
     
         Failure scenarios:
-            * In case of payment failure REST API to run specific invoices ADHOC. __ rest/v1/invoices/rerun __
+            In case of payment failure REST API to run specific invoices ADHOC. 
+            REST API: __rest/v1/invoices/rerun__
       
 * Reporting
     * REST endpoints to get payment data based on status, country and currency.
@@ -169,7 +166,13 @@ status into the invoice table, decided to create a separate table for tracking t
 * [Composite Pattern](https://github.com/namratanpillai/antaeus/blob/develop/pleo-antaeus-core/src/main/kotlin/io/pleo/antaeus/core/services/BillingService.kt) : Source data Validations
 
 
+## Nam(Wrestler) Stats
 
+Category| Description 
+| :--- | ---: 
+Time taken  | 8 days * 3 hours(approx per day)
+Enjoyed doing  | Learning a new language KOTLIN, Designing the basic structure, Thinking through various failure scenarios, Mothers coffee at nights while trying to figure stuff out :coffee: :coffee:
+Struggled with  | Initial setup, Efficient Error Handling
 
 
 
