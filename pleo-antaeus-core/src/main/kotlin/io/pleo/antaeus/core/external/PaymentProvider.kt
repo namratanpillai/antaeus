@@ -8,9 +8,14 @@
 
 package io.pleo.antaeus.core.external
 
+import io.pleo.antaeus.core.exceptions.CurrencyMismatchException
+import io.pleo.antaeus.core.exceptions.CustomerNotFoundException
+import io.pleo.antaeus.core.exceptions.NetworkException
 import io.pleo.antaeus.models.Invoice
+import io.pleo.antaeus.models.external.PaymentResponse
 
 interface PaymentProvider {
+    //Original
     /*
         Charge a customer's account the amount from the invoice.
 
@@ -19,10 +24,13 @@ interface PaymentProvider {
           `False` when the customer account balance did not allow the charge.
 
         Throws:
-          `CustomerNotFoundException`: when no customer has the given id.
+          `CustomerNotFoundException`: when no customomer has the given id.
           `CurrencyMismatchException`: when the currency does not match the customer account.
           `NetworkException`: when a network error happens.
      */
 
-    fun charge(invoice: Invoice): Boolean
+
+    @Throws(CustomerNotFoundException::class, CurrencyMismatchException::class, NetworkException::class)
+    /*Sending back PaymentResponse to give back different transaction status*/
+    fun charge(invoice: Invoice): PaymentResponse
 }
