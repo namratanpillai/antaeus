@@ -35,7 +35,7 @@ internal fun setupInitialData(dal: AntaeusDal) {
     }
 
 
-    //
+    //Country Curency Job scheduler Entries
     dal.createCronJobs("PaymentProcessor","Payments","SCHEDULED","0 34 14 01 * ?","DK","DKK")
     dal.createCronJobs("PaymentProcessor","Payments","SCHEDULED","0 31 13 26 * ?","US","USD")
 }

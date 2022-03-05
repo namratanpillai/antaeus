@@ -34,7 +34,7 @@ object PaymentTrackingTable : Table() {
 
 object CronJobs : Table() {
     val id = integer("id").autoIncrement().primaryKey()
-    val jobClassName = varchar("job_class_payment_datename", 50)
+    val jobClassName = varchar("job_class_payment_name", 50)
     val jobName=varchar("job_name", 50)
     val jobType = varchar("job_type", 50)
     val schedule = varchar("schedule", 30)

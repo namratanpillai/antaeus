@@ -22,7 +22,7 @@ class ExternalPaymentProviderImpl:PaymentProvider {
      * LOW_BALANCE --> Low balance leads to payment failure
      *
      * #ROFL
-     * There can be multiple scenarios for failure, in my case most probably it'll always be LOW BALANCE ROFL!
+     * There can be multiple scenarios for failure, in my case most probably it'll always be LOW BALANCE!
      */
     override fun charge(invoice: Invoice): PaymentResponse {
 

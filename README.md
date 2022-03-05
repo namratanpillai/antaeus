@@ -86,3 +86,90 @@ The code given is structured as follows. Feel free however to modify the structu
 * [Sqlite3](https://sqlite.org/index.html) - Database storage engine
 
 Happy hacking 😁!
+
+
+
+
+
+***
+
+##Approaches
+
+Though the problem looked easy, on diving into it deeper I realised I was wrong!  
+
+__Antaeus__  :wrestling: :women_wrestling: Nam 
+
+I started out with two high level approaches:
+* Run a polling job at a constant rate :arrow_right: Job picks the PENDING, FAILED invoices :arrow_right: In case of a PENDING Invoice-> checks if it's the 1st in the country/timezone FAILED Invoice-> Passes for processing regardless :arrow_right: Producer/Consumer model processes the invoices by asynchronously calling the payment provider :arrow_right: Done :moneybag:
+*Configure a DB driven Scheduler :arrow_right: Invoices are pushed for processing as per the timezone :arrow_right: Push invoices to channel, open coroutines to read from it and then open async call to payment provider :arrow_right: The success and failure status is noted in a tracking table and invoices table :arrow_right: To run ADHOC/FAILED payments provide REST endpoint :arrow_right: Done :moneybag:
+
+### I swiped Right on :purple_heart: :purple_heart:
+
+:two: approach because:
+* Failure retries specifically for payments must be performed post analysis/mentoring of the reason. Auto retries may not be the most ideal route to follow.
+* Since it is scheduled  job we can provide a flexibility to reschedule etc.
+
+##Project specifics
+
+###Assumptions made/ A little Personal touch :salt::
+
+1. The billing is always performed as per the customers country timezone. 
+2. In addition to the currency, I also added countries, and made a country :left_right_arrow: currency mapping. I am aware the mapping is not direct but considered it for the project.
+3. Created a specific implementation for the PaymentProvider, changed it to return a more specific Response structure, instead of a true/false. To keep our compliance/audit teams Happy ROFL!
+4. Instead of pushing the [PaymentTrackingResponse] response code
+status into the invoice table, decided to create a separate table for tracking these responses. Took this approach because in the future we may want a more detailed third party response tracking!
+5. Added a [paymentProcessingDate], to allow pushing future dated payments. This field ensures we don't bill the customer  for March in January! 
+
+###Features Implemented
+
+* Scheduling
+    Ensured to implement Transaction management, Chunk based processing and Rescheduling.
+    1. [CronJobs] DB driven Jobs using Quartz Scheduler. Table used: 
+        Field                   | Value         
+        ------------------------|------------- 
+        job_class_payment_name  | Name of the kotlin class to run
+        job_name                | Name of the job
+        job_type                | Type of job. Eg: SCHEDULED, SIMPLE.
+        schedule                | The cron trigger schedule
+        country_code            | The country for which the job has to be scheduled
+        currency_code           | Associated currency
+        
+        [CronJobService] schedules all the valid jobs.
+        Performing background processing in a chunk based model, in the background using __Quartz+ Channel+ coroutines__.
+        
+    2. REST Endpoint to reschedule already existing job by providing unique trigger.
+    
+        
+        
+        
+* Data Validation
+    * Performed basic validations on the source data before such as:
+        1. validate customer exists
+        2. validate amounts(non negative,non zero)
+        3. validate countries supported 
+      This ensures that only valid data is passed through for processing, thereby increasing efficiency. Smart work over ~~Hardwork~~.
+     * REST Request validations. Ensures meaningful responses are passed back in case of invalid data. Also makes sure that only correct and supported requests are passed through. 
+      
+      
+* Payments Processing 
+    * [BillingService] Open out parallel asynchronous connections to the Payment Provider in chunks(10). Thereby Improving performance.
+    
+        Failure scenarios:
+            * In case of payment failure REST API to run specific invoices ADHOC. __ rest/v1/invoices/rerun __
+      
+* Reporting
+    * REST endpoints to get payment data based on status, country and currency.
+    
+        
+
+
+## :factory: Design Patterns to Lookout for(Making life easy for everyone! :fox_face::fox_face:)
+* [Factory Pattern](https://github.com/namratanpillai/antaeus/blob/develop/pleo-antaeus-core/src/main/kotlin/io/pleo/antaeus/core/services/scheduler/jobs/JobFactory.kt) : For Cron Job creation
+* [Template Pattern](https://github.com/namratanpillai/antaeus/blob/develop/pleo-antaeus-core/src/main/kotlin/io/pleo/antaeus/core/services/CronJobService.kt) : Run steps for job execution
+* [Composite Pattern](https://github.com/namratanpillai/antaeus/blob/develop/pleo-antaeus-core/src/main/kotlin/io/pleo/antaeus/core/services/BillingService.kt) : Source data Validations
+
+
+
+
+
+
