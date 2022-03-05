@@ -1,0 +1,46 @@
+package io.pleo.antaeus.core.services
+
+import io.pleo.antaeus.models.Invoice
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import java.util.*
+import kotlin.system.measureTimeMillis
+
+class ChannelService(
+        private val billingService: BillingService
+) {
+
+    fun pushInvoiceForProcessing(invoices: List<Invoice>)= runBlocking {
+
+        val invoicesChannel= Channel<List<Invoice>>()
+        GlobalScope.launch { // launch a new co-routine in background and continue
+
+            invoicesChannel.send(invoices)
+            invoicesChannel.close()
+        }
+
+        val t = measureTimeMillis {
+
+            coroutineScope {
+                var uuid=UUID.randomUUID()
+                launch (CoroutineName("payment-1-$uuid")){processInvoices(invoicesChannel)}
+                launch (CoroutineName("payment-2-$uuid")){processInvoices(invoicesChannel)} }
+            }
+
+        print(t)
+    }
+
+
+
+
+    private suspend fun processInvoices(invoicesChannel: ReceiveChannel<List<Invoice>>){
+
+        for (o in invoicesChannel){
+            billingService.billCustomer(o)
+        }
+    }
+
+}
+
+
