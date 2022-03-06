@@ -6,6 +6,20 @@ import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.models.CronJob
 
 
+/**
+ * Fetches all jobs to schedule from the table CronJobs. Structure of CronJobs:
+        Field                   | Value
+        ------------------------|-------------
+        job_class_payment_name  | Name of the kotlin class to run
+        job_name                | Name of the job
+        job_type                | Type of job. Eg: SCHEDULED, SIMPLE.
+        schedule                | The cron trigger schedule
+        country_code            | The country for which the job has to be scheduled
+        currency_code           | Associated currency
+
+ * Schedules the jobs using Quartz Scheduler in specific timezones
+ * Provides for rescheduling already running jobs
+ */
 class CronJobService(private val dal: AntaeusDal) {
 
 

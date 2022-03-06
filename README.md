@@ -93,12 +93,13 @@ Happy hacking 😁!
 
 ***
 
-## Approaches
 
-Though the problem looked easy, on diving into it deeper I realised I was wrong!  
 
 __Antaeus__  :wrestling: :women_wrestling: __Nam__
 
+Though the problem looked easy, on diving into it deeper I realised I was wrong!  
+
+## Approaches
 I considered two approaches for processing the payments :
 1. Running a background task that processes invoices daily at a predetermined time rate. In case of failures the task retries the payment in the next iteration.
 2. Scheduling jobs for the 1st of every month for each country according to their timezone. In case of failures allow for manually triggering payments through an API.
@@ -121,42 +122,19 @@ I chose approach :two: :
 6. The payment response for the invoice is not only maintained in the status column in the [InvoiceTable] but also in a separate table called [PaymentTrackingTable]. This table is used for reporting, and can be used to store details about the third party process.
 
 
-### Tech Features Implemented
+### Features Implemented
+* Scheduled jobs that runs to process invoices in the customers timezone.
+* Flexibility to manually trigger payments by invoice id or within specific time periods and status. This provides the capability to handle error and Adhoc situations.
+* Reporting APIs to give detailed cause for Payment errors.
+* Data validations:
+    * Source data is validated before moving it for further processing, ensuring that we do not perform incorrect/unnecessary processing.
 
-* Scheduling
-    1. [CronJobService] schedules all the valid timezone specific jobs using the  __Quartz Scheduler__. The details for the jobs are picked from the table [CronJobs]:
-    
-            Field                   | Value         
-            ------------------------|------------- 
-            job_class_payment_name  | Name of the kotlin class to run
-            job_name                | Name of the job
-            job_type                | Type of job. Eg: SCHEDULED, SIMPLE.
-            schedule                | The cron trigger schedule
-            country_code            | The country for which the job has to be scheduled
-            currency_code           | Associated currency
-    2.  Provides a service to reschedule already existing job to run on another schedule. 
-    
-        
-* __Data Validation__
-    * Run basic validations on the invoice source data before passing it for processing. Validate:
-        1. check if customer exists
-        2. Amounts(non negative,non zero) to be billed
-        3. The country/currency is supported
-      
-     * REST Request validations: Check request parameter validity before calling services. In case of invalid requests, return meaningful responses.    
-      
-* Payments Processing 
-    * [BillingService] Open out parallel asynchronous connections to the Payment Provider in chunks(10). Thereby Improving performance.
-    
-        Failure scenarios:
-            In case of payment failure REST API to run specific invoices ADHOC. 
-            REST API: __rest/v1/invoices/rerun__
-      
-* Reporting
-    * REST endpoints to get status of processed invoices.Information can be filtered based on Country, Currency and Status.
-    
-        
-
+### Technical Features
+* Quartz Scheduler
+* DB driven Cron Job configuration
+* Chunk Based Processing using Channels+ CoRoutines. Divided the tasks in chunks to trigger background tasks.
+* Parallel asynchronous calls to External Integrator while performing payments.
+* REST API Request Validations with specific Error Codes
 
 ## :factory: Design Patterns to Lookout for(Making life easy for everyone! :fox_face::fox_face:)
 * [Factory Pattern](https://github.com/namratanpillai/antaeus/blob/develop/pleo-antaeus-core/src/main/kotlin/io/pleo/antaeus/core/services/scheduler/jobs/JobFactory.kt) : For Cron Job creation
@@ -168,9 +146,9 @@ I chose approach :two: :
 
 Category| Description 
 | :--- | ---: 
-Time taken  | 28 hrs
-Enjoyed doing  | Learning a new language KOTLIN, Designing the basic structure, Thinking through various failure scenarios, Coffee at nights while trying to figure stuff out :coffee: :coffee:
-Struggled with  | Initial setup, Efficient Error Handling
+Time taken  | 4 hrs + + 2 hrs +10 hrs  + 5 hrs + 8 hrs
+Enjoyed doing  | Learning a new language KOTLIN, Thinking through various failure scenarios, Coffee at nights while trying to figure stuff out :coffee: :coffee:
+Struggled with  | Initial setup, Efficient Error/Exception Handling
 
 
 
