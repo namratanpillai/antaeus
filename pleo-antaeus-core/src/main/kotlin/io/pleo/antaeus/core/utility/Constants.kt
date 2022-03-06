@@ -30,8 +30,11 @@ object ErrorConstants {
     const val SUCCESS="SUCCESS"
     const val JOB_RESCHEDULED_SUCCESS = "Rescheduled Job successfully"
 
-    const val FAILED_TO_PERFORM_ACTION="FAILED_TO_PERFORM_ACTION"
+    const val INVOICE_NOT_FOUND="INVOICE_NOT_FOUND"
+    const val INVOICE_NOT_FOUND_MESSAGE="Failed to find specific invoice"
 
+    const val FAILED_ACTION="FAILED_ACTION"
+    const val FAILED_ACTION_MESSAGE="Failed to perform action. Please try again later."
 
 
 

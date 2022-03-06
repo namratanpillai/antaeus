@@ -17,7 +17,7 @@ class ValidateCronRescheduleRequest: Validations<CronRequest> {
         if(!Currency.getCurrencies().contains(value.currencyCode.toString()))
             return ValidationResult(value.currencyCode.toString(),false, ErrorConstants.INVALID_CURRENCY_CODE, ErrorConstants.INVALID_CURRENCY_CODE_MSSAGE)
         if(value.jobType.equals(JobType.SCHEDULED.name) && value.schedule?.split(" ")?.size != 6) {
-            return ValidationResult(value.currencyCode.toString(),false, ErrorConstants.INVALID_SCHEDULE, ErrorConstants.INVALID_SCHEDULE_MESSAGE)
+            return ValidationResult(value.schedule.toString(),false, ErrorConstants.INVALID_SCHEDULE, ErrorConstants.INVALID_SCHEDULE_MESSAGE)
         }
 
 

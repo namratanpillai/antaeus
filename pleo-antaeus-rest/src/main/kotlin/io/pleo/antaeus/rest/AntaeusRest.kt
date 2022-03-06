@@ -10,6 +10,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.pleo.antaeus.core.exceptions.EntityNotFoundException
+import io.pleo.antaeus.core.exceptions.InvoiceNotFoundException
 import io.pleo.antaeus.core.exceptions.validations.CronJobExecutionException
 import io.pleo.antaeus.core.services.AdhocPaymentService
 import io.pleo.antaeus.core.services.CronJobService
@@ -19,7 +20,11 @@ import io.pleo.antaeus.core.services.reporting.PaymentTrackingService
 import io.pleo.antaeus.core.services.validations.request.ValidateCronRescheduleRequest
 import io.pleo.antaeus.core.services.validations.request.ValidatePaymentTrackingRequest
 import io.pleo.antaeus.core.utility.AntaeusUtil
+import io.pleo.antaeus.core.utility.ErrorConstants.FAILED_ACTION
+import io.pleo.antaeus.core.utility.ErrorConstants.FAILED_ACTION_MESSAGE
 import io.pleo.antaeus.core.utility.ErrorConstants.INVALID_JOB_DETAILS_MESSAGE
+import io.pleo.antaeus.core.utility.ErrorConstants.INVOICE_NOT_FOUND
+import io.pleo.antaeus.core.utility.ErrorConstants.INVOICE_NOT_FOUND_MESSAGE
 import io.pleo.antaeus.core.utility.ErrorConstants.JOB_RESCHEDULED_SUCCESS
 import io.pleo.antaeus.core.utility.ErrorConstants.REQUEST_INVALID
 import io.pleo.antaeus.core.utility.ErrorConstants.REQUEST_INVALID_CANNOT_BE_NULL_MESSAGE
@@ -80,14 +85,33 @@ class AntaeusRest(
                     path("invoices") {
                         // URL: /rest/v1/invoices
                         get {
-                            it.json(invoiceService.fetchAll())
+
+                            ctx->
+                            try{
+                                ctx.json( invoiceService.fetchAll())
+                                ctx.status(200)
+                            }catch(i:Exception){
+                                ctx.json(Response(FAILED_ACTION, FAILED_ACTION_MESSAGE))
+                                ctx.status(500)
+                            }
+
                         }
                     }
 
                     path("invoices/id") {
                         // URL: /rest/v1/invoices/{:id}
                         get(":id") {
-                            it.json(invoiceService.fetch(it.pathParam("id").toInt()))
+                            ctx->
+                            try{
+                                ctx.json(invoiceService.fetch(ctx.pathParam("id").toInt()))
+                                ctx.status(200)
+                            }catch(i:InvoiceNotFoundException){
+                                ctx.json(Response(INVOICE_NOT_FOUND,INVOICE_NOT_FOUND_MESSAGE))
+                                ctx.status(500)
+                            }catch(i:Exception){
+                                ctx.json(Response(FAILED_ACTION, FAILED_ACTION_MESSAGE))
+                                ctx.status(500)
+                            }
                         }
                     }
 
@@ -150,7 +174,7 @@ class AntaeusRest(
                 }
 
                 path("reporting") {
-                    // URL: /rest/v1/track
+
                     get {
                         it.json(paymentTrackingService.fetchAll())
                     }

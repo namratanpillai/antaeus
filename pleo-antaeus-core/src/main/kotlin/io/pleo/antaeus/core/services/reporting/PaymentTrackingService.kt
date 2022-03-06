@@ -18,8 +18,8 @@ class PaymentTrackingService(private val dal: AntaeusDal) {
         return paymentResponse
     }
 
-    fun fetchByFilter(status: PaymentTrackingRequest):List<PaymentTrackingResponse>{
-        return dal.fetchPaymentsByFilter(status)
+    fun fetchByFilter(request: PaymentTrackingRequest):List<PaymentTrackingResponse>{
+        return dal.fetchPaymentsByFilter(request)
     }
 
     fun fetchAll():List<PaymentResponse>{
