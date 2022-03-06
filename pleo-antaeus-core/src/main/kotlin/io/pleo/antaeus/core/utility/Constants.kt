@@ -11,6 +11,8 @@ object ErrorConstants {
     const val NOT_IMPLEMENTED_MESSAGE = "Functionality not implemented"
     const val INVALID_COUNTRY_CODE = "ERR_INVALID_COUNTRY_CODE"
     const val INVALID_COUNTRY_CODE_MSSAGE = "Invalid country code. This country is currently not supported"
+    const val INVALID_STATUS = "INVALID_STATUS"
+    const val INVALID_STATUS_MESSAGE = "Invalid status passed. This status is not supported not supported"
     const val INVALID_CUSTOMER = "ERR_INVALID_CUSTOMER"
     const val INVALID_CUSTOMER_MESSAGE = "This customer does not exist"
     const val INVALID_CURRENCY_CODE = "ERR_INVALID_CURRENCY_CODE"
@@ -18,13 +20,25 @@ object ErrorConstants {
     const val INVALID_CURRENCY_MISMATCH = "ERR_INVALID_CURRENCY_MISMATCH_CODE"
     const val INVALID_CURRENCY_MISMATCH_MSSAGE = "Currency mismatch in invoice and customer iformation"
     const val VALID = "VALID"
+    const val INVALID_JOB_DETAILS = "INVALID_JOB_DETAILS"
+    const val INVALID_JOB_DETAILS_MESSAGE = "The job details passed may be invalid."
+    const val INVALID_JOB_TYPE="INVALID_JOB_TYPE"
+    const val INVALID_JOB_TYPE_MESSAGE="This type of cron is not supported currently"
+    const val INVALID_SCHEDULE="INVALID_SCHEDULE"
+    const val INVALID_SCHEDULE_MESSAGE="Schedule passed is invalid"
+
+    const val SUCCESS="SUCCESS"
+    const val JOB_RESCHEDULED_SUCCESS = "Rescheduled Job successfully"
+
+    const val FAILED_TO_PERFORM_ACTION="FAILED_TO_PERFORM_ACTION"
 
 
 
 
     //Request Validation
-    const val REQUEST_INVALID_CANNOT_BE_NULL = "Request cannot be null. Certain fields cannot be null"
-    const val REQUEST_INVALID_PASS_MAX_VALUES_ID= "Pass only 10 invoices to process at a time"
+    const val REQUEST_INVALID="REQUEST_INVALID"
+    const val REQUEST_INVALID_CANNOT_BE_NULL_MESSAGE= "Request cannot be null. Certain fields cannot be null"
+    const val REQUEST_INVALID_PASS_MAX_VALUES_MESSAGE= "Pass only 10 invoices to process at a time"
 }
 
 object DBConstants {

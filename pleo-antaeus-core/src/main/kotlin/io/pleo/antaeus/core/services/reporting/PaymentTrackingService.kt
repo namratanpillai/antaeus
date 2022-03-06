@@ -7,7 +7,7 @@ package io.pleo.antaeus.core.services.reporting
 import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.models.PaymentTrackingRequest
 import io.pleo.antaeus.models.external.PaymentResponse
-import io.pleo.antaeus.models.request.PaymentTrackingResponse
+import io.pleo.antaeus.models.response.PaymentTrackingResponse
 
 class PaymentTrackingService(private val dal: AntaeusDal) {
 

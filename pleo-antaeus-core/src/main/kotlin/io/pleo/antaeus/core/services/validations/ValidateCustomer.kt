@@ -19,20 +19,20 @@ class ValidateCustomer: Validations<Invoice> {
     val customerService = CustomerService(dal = dal)
 
 
-    override fun validate(toValidate: Invoice): ValidationResult {
+    override fun validate(value: Invoice): ValidationResult {
         try{
-            var customer=customerService.fetch(toValidate.customerId)
-            customer?.let {
+            val customer=customerService.fetch(value.customerId)
+            customer.let {
 
-                if(!customer.currency.equals(toValidate.amount.currency)){
-                    return ValidationResult(toValidate.id,true, ErrorConstants.INVALID_CURRENCY_MISMATCH, ErrorConstants.INVALID_CURRENCY_MISMATCH_MSSAGE)
+                if(!customer.currency.equals(value.amount.currency)){
+                    return ValidationResult(value.id.toString(),true, ErrorConstants.INVALID_CURRENCY_MISMATCH, ErrorConstants.INVALID_CURRENCY_MISMATCH_MSSAGE)
                 }
 
-                return ValidationResult(toValidate.id,true, ErrorConstants.VALID, ErrorConstants.VALID)
+                return ValidationResult(value.id.toString(),true, ErrorConstants.VALID, ErrorConstants.VALID)
             }
 
         }catch (customerException: CustomerNotFoundException){
-            return ValidationResult(toValidate.id,true, ErrorConstants.INVALID_CUSTOMER, ErrorConstants.INVALID_CUSTOMER_MESSAGE)
+            return ValidationResult(value.id.toString(),true, ErrorConstants.INVALID_CUSTOMER, ErrorConstants.INVALID_CUSTOMER_MESSAGE)
         }
     }
 }

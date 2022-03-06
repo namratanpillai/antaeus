@@ -9,14 +9,13 @@ package io.pleo.antaeus.data
 
 import io.pleo.antaeus.models.*
 import io.pleo.antaeus.models.external.PaymentResponse
-import io.pleo.antaeus.models.request.PaymentTrackingResponse
+import io.pleo.antaeus.models.response.PaymentTrackingResponse
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class AntaeusDal(private val db: Database) {
     fun fetchInvoice(id: Int): Invoice? {
 
-        // transaction(db) runs the intfetchInvoicesByStatusAndCountryernal query as a new database transaction.
         return transaction(db) {
             // Returns the first invoice with matching id.
             InvoiceTable
@@ -26,15 +25,39 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
+    fun fetchInvoice(countryCode: String): List<Invoice>? {
+
+        return transaction(db) {
+            // Returns the first invoice with matching id.
+            InvoiceTable
+                    .select { InvoiceTable.countryCode.eq(countryCode) }.map { it.toInvoice() }
+        }
+    }
+
     fun fetchInvoice(ids: List<Int>): List<Invoice>? {
 
-        // transaction(db) runs the intfetchInvoicesByStatusAndCountryernal query as a new database transaction.
         return transaction(db) {
             InvoiceTable.select{InvoiceTable.id.inList(ids)}
                     .map { it.toInvoice() }
 
         }
     }
+
+    fun fetchInvoice(paymentStartDate: Long, paymentEndDate: Long, countryCode:String): List<Invoice>? {
+
+        return if (countryCode.isEmpty()) {
+            transaction(db) {
+                InvoiceTable.select { InvoiceTable.paymentProcessingDate.between(paymentStartDate, paymentEndDate) }
+                        .map { it.toInvoice() }
+
+            }
+        } else transaction(db) {
+            InvoiceTable.select { InvoiceTable.paymentProcessingDate.between(paymentStartDate, paymentEndDate) and InvoiceTable.countryCode.eq(countryCode) }
+                    .map { it.toInvoice() }
+
+        }
+    }
+
 
     fun fetchInvoices(): List<Invoice> {
         return transaction(db) {
@@ -168,7 +191,7 @@ class AntaeusDal(private val db: Database) {
 
     fun fetchAllPayments(): List<PaymentResponse> {
         return transaction(db) {
-            PaymentTrackingTable
+            InvoiceTable.join(PaymentTrackingTable,JoinType.INNER,InvoiceTable.id,PaymentTrackingTable.id)
                     .selectAll()
                     .map { it.toPaymentResponse() }
         }
@@ -178,7 +201,7 @@ class AntaeusDal(private val db: Database) {
     fun fetchPaymentsByFilter(request: PaymentTrackingRequest): List<PaymentTrackingResponse> {
         return transaction(db) {
             PaymentTrackingTable.join(InvoiceTable,JoinType.INNER,PaymentTrackingTable.id,InvoiceTable.id)
-                    .select { PaymentTrackingTable.responseMessage.eq(request.status!!) or InvoiceTable.countryCode.eq(request.countryCode!!) or InvoiceTable.currency.eq(request.currency!!) }.map { it.toPaymentTrackingResponse() }
+                    .select { PaymentTrackingTable.responseCode.eq(request.status!!) or InvoiceTable.countryCode.eq(request.countryCode!!) or InvoiceTable.currency.eq(request.currencyCode!!) }.map { it.toPaymentTrackingResponse() }
         }
     }
 }

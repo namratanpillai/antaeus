@@ -8,6 +8,14 @@ enum class Country {
     SE,
     UK;
 
+
+    companion object {
+        fun getCountries(): List<String> {
+            return values().map {
+                it.toString()
+            }
+        }
+    }
 }
 
 

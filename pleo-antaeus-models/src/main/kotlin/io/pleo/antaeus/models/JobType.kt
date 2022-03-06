@@ -1,21 +1,20 @@
 package io.pleo.antaeus.models
 
-enum class Currency {
-    EUR,
-    USD,
-    DKK,
-    SEK,
-    GBP;
 
-
+enum class JobType {
+    SCHEDULED,
+    SIMPLE;
 
     companion object {
-        fun getCurrencies(): List<String> {
+        fun getJobTypes(): List<String> {
             return values().map {
                 it.toString()
             }
         }
     }
+
+
 }
+
 
 

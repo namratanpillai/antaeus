@@ -9,7 +9,7 @@ import io.pleo.antaeus.models.*
 import io.pleo.antaeus.models.Currency
 import io.pleo.antaeus.models.external.CountryTimeZone
 import io.pleo.antaeus.models.external.PaymentResponse
-import io.pleo.antaeus.models.request.PaymentTrackingResponse
+import io.pleo.antaeus.models.response.PaymentTrackingResponse
 import org.jetbrains.exposed.sql.ResultRow
 import java.util.*
 
@@ -52,13 +52,21 @@ fun ResultRow.toPaymentResponse(): PaymentResponse = PaymentResponse(
         responseMessage=this[PaymentTrackingTable.responseMessage]
 )
 
+fun ResultRow.toPaymentResponseFromInvoice(): PaymentResponse = PaymentResponse(
+        id = this[InvoiceTable.id],
+        customerId=this[InvoiceTable.customerId],
+        paymentDate = this[InvoiceTable.paymentProcessingDate].toString(),
+        responseCode=this[InvoiceTable.status],
+        responseMessage=this[InvoiceTable.status]
+)
+
 
 fun ResultRow.toPaymentTrackingResponse(): PaymentTrackingResponse = PaymentTrackingResponse(
         id = this[PaymentTrackingTable.id],
-        customerId=this[PaymentTrackingTable.customerId],
+        customerId = this[PaymentTrackingTable.customerId],
         paymentDate = this[PaymentTrackingTable.paymentDate],
-        responseCode=this[PaymentTrackingTable.responseCode],
-        responseMessage=this[PaymentTrackingTable.responseMessage],
+        responseCode = this[PaymentTrackingTable.responseCode],
+        responseMessage = this[PaymentTrackingTable.responseMessage],
         countryCode = this[InvoiceTable.countryCode],
         amount = Money(
                 value = this[InvoiceTable.value],

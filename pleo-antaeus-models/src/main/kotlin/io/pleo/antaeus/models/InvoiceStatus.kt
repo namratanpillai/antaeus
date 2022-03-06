@@ -5,6 +5,7 @@ package io.pleo.antaeus.models
  * PENDING --> Payment pending to be made
  * PAID --> Payment went through successfully
  * FAILED --> Payment failed
+ * PROCESSING --> Payment being worked on
  * FAILED_INVALID_DATA--> Invalid invoice data
  */
 enum class InvoiceStatus {
@@ -12,5 +13,13 @@ enum class InvoiceStatus {
     PAID,
     FAILED,
     PROCESSING,
-    FAILED_INVALID_DATA
+    FAILED_INVALID_DATA;
+
+    companion object {
+        fun getAllStatus(): List<String> {
+            return values().map {
+                it.toString()
+            }
+        }
+    }
 }

@@ -12,14 +12,14 @@ import io.pleo.antaeus.models.Invoice
          validations.forEach{
             r->
             run {
-                var validationResult = r.validate(value)
+                val validationResult = r.validate(value)
                 if (validationResult.notValid()) {
-                    return validationResult;
+                    return validationResult
                 }
             }
         }
 
-         return ValidationResult(value.id,true, ErrorConstants.VALID, ErrorConstants.VALID)
+         return ValidationResult(value.id.toString(),true, ErrorConstants.VALID, ErrorConstants.VALID)
 
      }
 

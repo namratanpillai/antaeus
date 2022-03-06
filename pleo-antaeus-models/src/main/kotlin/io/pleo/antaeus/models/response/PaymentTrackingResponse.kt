@@ -1,4 +1,4 @@
-package io.pleo.antaeus.models.request
+package io.pleo.antaeus.models.response
 
 import io.pleo.antaeus.models.Money
 

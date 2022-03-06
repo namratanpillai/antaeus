@@ -2,6 +2,7 @@
 import io.pleo.antaeus.core.utility.Utility.countryCurrencyMap
 import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.models.Currency
+import io.pleo.antaeus.models.Customer
 import io.pleo.antaeus.models.InvoiceStatus
 import io.pleo.antaeus.models.Money
 import java.math.BigDecimal
@@ -14,7 +15,7 @@ internal fun setupInitialData(dal: AntaeusDal) {
 
 
     val customers = (1..100).mapNotNull {
-        var currency=Currency.values()[Random.nextInt(0, Currency.values().size)]
+        val currency=Currency.values()[Random.nextInt(0, Currency.values().size)]
         dal.createCustomer(
                 currency =currency , countryCode =countryCurrencyMap.get(currency)?.country.toString()
         )
@@ -36,7 +37,7 @@ internal fun setupInitialData(dal: AntaeusDal) {
 
 
     //Country Curency Job scheduler Entries
-    dal.createCronJobs("PaymentProcessor","Payments","SCHEDULED","0 34 14 01 * ?","DK","DKK")
+    dal.createCronJobs("PaymentProcessor","Payments","SCHEDULED","0 30 12 01 * ?","DK","DKK")
     dal.createCronJobs("PaymentProcessor","Payments","SCHEDULED","0 31 13 26 * ?","US","USD")
 }
 
