@@ -147,15 +147,25 @@ class AntaeusDal(private val db: Database) {
 
     fun insertPaymentTrackingData(paymentResponse: PaymentResponse) {
         transaction(db) {
-            // Insert the invoice and returns its new id.
-            PaymentTrackingTable
-                    .insert {
 
-                        it[this.id] = paymentResponse.id
-                        it[this.customerId] = paymentResponse.customerId
-                        it[this.paymentDate] = paymentResponse.paymentDate
-                        it[this.responseCode] = paymentResponse.responseCode
-                        it[this.responseMessage] = paymentResponse.responseMessage
+            var response=PaymentTrackingTable.select{ PaymentTrackingTable.id.eq(paymentResponse.id) }.map { it.toPaymentResponse() }
+
+
+            if(response.isEmpty()){
+                PaymentTrackingTable
+                        .insert {
+
+                            it[this.id] = paymentResponse.id
+                            it[this.customerId] = paymentResponse.customerId
+                            it[this.paymentDate] = paymentResponse.paymentDate
+                            it[this.responseCode] = paymentResponse.responseCode
+                            it[this.responseMessage] = paymentResponse.responseMessage
+                        }
+            }else PaymentTrackingTable
+                    .update({ PaymentTrackingTable.id.eq(paymentResponse.id) }) { row ->
+                        row[this.responseCode] = paymentResponse.responseCode
+                        row[this.responseMessage] = paymentResponse.responseMessage
+                        row[this.paymentDate]= paymentResponse.paymentDate
                     }
         }
     }

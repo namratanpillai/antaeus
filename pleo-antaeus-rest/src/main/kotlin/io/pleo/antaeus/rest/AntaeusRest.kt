@@ -190,9 +190,14 @@ class AntaeusRest(
                             ctx.json(Response(validate.errorCode,validate.errorMessage))
                             return@post
                         }
-                        val response=paymentTrackingService.fetchByFilter(paymentTrackingRequest)
-                        ctx.json(response)
-                        ctx.status(200)
+                        try {
+                            val response = paymentTrackingService.fetchByFilter(paymentTrackingRequest)
+                            ctx.json(response)
+                            ctx.status(200)
+                        }catch (e:Exception){
+                            ctx.status(500)
+                            ctx.json(Response(FAILED_ACTION,FAILED_ACTION_MESSAGE+e.message))
+                        }
                     }
                 }
                 path("job") {
@@ -213,8 +218,8 @@ class AntaeusRest(
                             ctx.status(200)
                             ctx.json(Response(SUCCESS,JOB_RESCHEDULED_SUCCESS+" : ${cronJob.jobClassName}"))
                         }catch (cronException:CronJobExecutionException){
-                            ctx.status(400)
-                            ctx.json(Response(cronException.errorCode,INVALID_JOB_DETAILS_MESSAGE))
+                            ctx.status(500)
+                            ctx.json(Response(cronException.errorCode,FAILED_ACTION_MESSAGE))
                         }
 
                     }
