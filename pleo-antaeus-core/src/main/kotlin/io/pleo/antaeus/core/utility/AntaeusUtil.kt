@@ -10,7 +10,7 @@ class AntaeusUtil {
     companion object{
         fun convertPaymentResponseToInvoiceIdStatus(paymentResponse: PaymentResponse):InvoiceIdStatus{
 
-            return InvoiceIdStatus(paymentResponse.id,paymentResponse.responseCode)
+            return InvoiceIdStatus(paymentResponse.invoiceId,paymentResponse.responseCode)
         }
 
         fun convertCronRequestToCronJob(cronRequest: CronRequest):CronJob{

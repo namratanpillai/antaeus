@@ -44,16 +44,8 @@ fun ResultRow.toCronJob(): CronJob = CronJob(
         currencyCode = this[CronJobs.currencyCode]
 )
 
-fun ResultRow.toPaymentResponse(): PaymentResponse = PaymentResponse(
-        id = this[PaymentTrackingTable.id],
-        customerId=this[PaymentTrackingTable.customerId],
-        paymentDate = this[PaymentTrackingTable.paymentDate],
-        responseCode=this[PaymentTrackingTable.responseCode],
-        responseMessage=this[PaymentTrackingTable.responseMessage]
-)
-
 fun ResultRow.toPaymentTrackingResponse(): PaymentTrackingResponse = PaymentTrackingResponse(
-        id = this[PaymentTrackingTable.id],
+        invoiceId = this[PaymentTrackingTable.id],
         customerId = this[PaymentTrackingTable.customerId],
         paymentDate = this[PaymentTrackingTable.paymentDate],
         responseCode = this[PaymentTrackingTable.responseCode],

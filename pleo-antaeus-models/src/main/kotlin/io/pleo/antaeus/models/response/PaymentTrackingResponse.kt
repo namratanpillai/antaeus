@@ -4,7 +4,7 @@ import io.pleo.antaeus.models.Money
 
 
 data class PaymentTrackingResponse(
-        val id: Int,
+        val invoiceId: Int,
         val customerId: Int,
         val paymentDate:Long,
         val responseCode: String,

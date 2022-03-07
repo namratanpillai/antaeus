@@ -148,24 +148,14 @@ class AntaeusDal(private val db: Database) {
     fun insertPaymentTrackingData(paymentResponse: PaymentResponse) {
         transaction(db) {
 
-            var response=PaymentTrackingTable.select{ PaymentTrackingTable.id.eq(paymentResponse.id) }.map { it.toPaymentResponse() }
+            PaymentTrackingTable
+                    .insert {
 
-
-            if(response.isEmpty()){
-                PaymentTrackingTable
-                        .insert {
-
-                            it[this.id] = paymentResponse.id
-                            it[this.customerId] = paymentResponse.customerId
-                            it[this.paymentDate] = paymentResponse.paymentDate
-                            it[this.responseCode] = paymentResponse.responseCode
-                            it[this.responseMessage] = paymentResponse.responseMessage
-                        }
-            }else PaymentTrackingTable
-                    .update({ PaymentTrackingTable.id.eq(paymentResponse.id) }) { row ->
-                        row[this.responseCode] = paymentResponse.responseCode
-                        row[this.responseMessage] = paymentResponse.responseMessage
-                        row[this.paymentDate]= paymentResponse.paymentDate
+                        it[this.invoice_id] = paymentResponse.invoiceId
+                        it[this.customerId] = paymentResponse.customerId
+                        it[this.paymentDate] = paymentResponse.paymentDate
+                        it[this.responseCode] = paymentResponse.responseCode
+                        it[this.responseMessage] = paymentResponse.responseMessage
                     }
         }
     }
@@ -199,18 +189,18 @@ class AntaeusDal(private val db: Database) {
 
 
 
-    fun fetchAllPayments(): List<PaymentResponse> {
+    fun fetchAllPayments(): List<PaymentTrackingResponse> {
         return transaction(db) {
-            InvoiceTable.join(PaymentTrackingTable,JoinType.INNER,InvoiceTable.id,PaymentTrackingTable.id)
+            PaymentTrackingTable.join(InvoiceTable,JoinType.LEFT,PaymentTrackingTable.invoice_id,InvoiceTable.id)
                     .selectAll()
-                    .map { it.toPaymentResponse() }
+                    .map { it.toPaymentTrackingResponse() }
         }
     }
 
 
     fun fetchPaymentsByFilter(request: PaymentTrackingRequest): List<PaymentTrackingResponse> {
         return transaction(db) {
-            PaymentTrackingTable.join(InvoiceTable,JoinType.INNER,PaymentTrackingTable.id,InvoiceTable.id)
+            PaymentTrackingTable.join(InvoiceTable,JoinType.INNER,PaymentTrackingTable.invoice_id,InvoiceTable.id)
                     .select { PaymentTrackingTable.responseCode.eq(request.status!!) or InvoiceTable.countryCode.eq(request.countryCode!!) or InvoiceTable.currency.eq(request.currencyCode!!) }.map { it.toPaymentTrackingResponse() }
         }
     }

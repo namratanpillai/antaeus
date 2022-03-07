@@ -24,7 +24,8 @@ object CustomerTable : Table() {
 }
 
 object PaymentTrackingTable : Table() {
-    val id = integer("id")
+    val id = integer("id").autoIncrement().primaryKey()
+    val invoice_id = integer("invoice_id")
     val customerId =integer("customer_id")
     val paymentDate= long("payment_date")
     val responseCode= varchar("response_code", 255)
