@@ -37,7 +37,7 @@ class AdhocPaymentService(
         val invoicesToProcess=invoiceService.fetch(request.startDate!!,request.endDate!!,request.countryCode!!).filter { i-> statusList.contains(i.status.toString()) }
         val chunkedInvoices= invoicesToProcess.chunked(10)
 
-        chunkedInvoices.parallelStream().map { i-> ChannelService(billingService).pushInvoiceForProcessing(i)}.collect(Collectors.toList<Unit>())
+        /*chunkedInvoices.parallelStream().map { i-> ChannelService(billingService).pushInvoiceForProcessing(i)}.collect(Collectors.toList<Unit>())*/
         return billingService.billCustomer(invoicesToProcess)
 
     }

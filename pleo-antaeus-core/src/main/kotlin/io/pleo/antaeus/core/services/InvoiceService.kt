@@ -35,9 +35,11 @@ class InvoiceService(private val dal: AntaeusDal) {
       return dal.fetchInvoicesByStatusAndCountry(status,country,processingDate)
     }
 
+
     fun updateStatusForInvoices(ids:List<Int>, status:String){
         dal.updateStatusForInvoices(ids, status)
     }
+
 
     fun updateStatusForInvoices(ids:List<InvoiceIdStatus>){
         dal.updateStatusForInvoices(ids)

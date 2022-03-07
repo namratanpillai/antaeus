@@ -1,12 +1,11 @@
 package io.pleo.antaeus.core.services
 
 import io.pleo.antaeus.models.Invoice
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ReceiveChannel
+import io.pleo.antaeus.models.external.PaymentResponse
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import java.util.*
-import kotlin.system.measureTimeMillis
 
 /**
 * #Serious
@@ -19,37 +18,23 @@ class ChannelService(
 
     private val logger = KotlinLogging.logger {}
 
-    fun pushInvoiceForProcessing(invoices: List<Invoice>)= runBlocking {
+    fun pushInvoiceForProcessing(invoices: List<Invoice>):List<PaymentResponse>  = runBlocking {
+        val responses=async { processInvoices(invoices,UUID.randomUUID()) }
+        responses.await()
 
-        val invoicesChannel= Channel<List<Invoice>>()
-
-        GlobalScope.launch { // launch a new co-routine in background and continue
-            logger.info { "Processing invoices ${invoices.size}"}
-            invoicesChannel.send(invoices)
-            invoicesChannel.close()
-        }
-
-        val t = measureTimeMillis {
-
-            coroutineScope {
-                val uuid=UUID.randomUUID()
-                logger.info { "Launching coroutines: payment-1-$uuid and payment-2-$uuid"}
-                launch (CoroutineName("payment-1-$uuid")){processInvoices(invoicesChannel)}
-                launch (CoroutineName("payment-2-$uuid")){processInvoices(invoicesChannel)} }
-            }
-        logger.info { t }
     }
 
 
+    private fun processInvoices(invoices:List<Invoice>,uuid: UUID): List<PaymentResponse> {
 
+        logger.info { "async-$uuid has started" }
+        var response= mutableListOf< PaymentResponse>()
 
-    private suspend fun processInvoices(invoicesChannel: ReceiveChannel<List<Invoice>>){
+        response.addAll(billingService.billCustomer(invoices))
 
-        for (o in invoicesChannel){
-            billingService.billCustomer(o)
-        }
+        return response;
+
     }
-
 }
 
 

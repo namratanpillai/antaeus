@@ -7,12 +7,10 @@ import io.pleo.antaeus.core.services.validations.ValidateCustomer
 import io.pleo.antaeus.core.services.validations.ValidateInvoice
 import io.pleo.antaeus.core.services.validations.Validations
 import io.pleo.antaeus.core.services.validations.chainofresp.ValidationResult
-import io.pleo.antaeus.core.utility.AntaeusUtil
-import io.pleo.antaeus.core.utility.ErrorConstants
 import io.pleo.antaeus.models.Invoice
-import io.pleo.antaeus.models.InvoiceIdStatus
 import io.pleo.antaeus.models.InvoiceStatus
 import io.pleo.antaeus.models.external.PaymentResponse
+import mu.KotlinLogging
 import java.util.concurrent.CompletableFuture
 import java.util.stream.Collectors
 
@@ -22,6 +20,7 @@ class BillingService(
     private val paymentTrackingService:PaymentTrackingService
 ) {
 
+    private val logger = KotlinLogging.logger {}
     /**
      * #Serious:
      * Performs the following steps:
@@ -35,14 +34,13 @@ class BillingService(
      */
     fun billCustomer(invoices: List<Invoice>): List<PaymentResponse> {
 
-        validate(invoices)
-
-        invoiceService.updateStatusForInvoices(invoices.map { it.id }, InvoiceStatus.PROCESSING.name)
         val response = callPaymentProvider(invoices)
         CompletableFuture.allOf(*response.toTypedArray())
-        val paymentResponses = trackPaymentStatus(response)
-        invoiceService.updateStatusForInvoices(paymentResponses.stream().map { r -> AntaeusUtil.convertPaymentResponseToInvoiceIdStatus(r) }.collect(Collectors.toList<InvoiceIdStatus>()))
-        return paymentResponses
+
+        var transformedResponse=response.parallelStream().map { i -> i.get() }.collect(Collectors.toList<PaymentResponse>())
+
+        transformedResponse.forEach { s->logger.info {  s.responseCode }}
+        return transformedResponse
 
     }
 
@@ -63,17 +61,7 @@ class BillingService(
 
     }
 
-    /**
-     * #Serious
-     * Track the status of each [paymentResponses]
-     *
-     * #ROFL
-     * Reporting is key! Fines are a big no! Every response must be tracked perfectoollyyyy
-     */
-    private fun trackPaymentStatus(paymentResponses: List<CompletableFuture<PaymentResponse>>): List<PaymentResponse> {
 
-        return paymentResponses.stream().map { i -> i.get() }.map { data -> paymentTrackingService.trackPayment(data) }.collect(Collectors.toList<PaymentResponse>())
-    }
 
 
     /**

@@ -27,6 +27,7 @@ class ExternalPaymentProviderImpl:PaymentProvider {
     @Throws(Exception::class)
     override fun charge(invoice: Invoice): PaymentResponse {
 
+
             val randomResponse = responseMap.entries.shuffled().first()
             return PaymentResponse(invoice.id, invoice.customerId, Date().toString(), randomResponse.value, randomResponse.key)
 

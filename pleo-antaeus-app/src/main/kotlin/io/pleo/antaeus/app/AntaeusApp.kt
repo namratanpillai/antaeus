@@ -23,9 +23,14 @@ fun main() {
     val databaseConnectorHelper = DatabaseConnectionHelper()
 
     val db = databaseConnectorHelper.setupInitialDB(DBConstants.URL_ANTAEUS, DBConstants.DRIVER, DBConstants.USER, DBConstants.PASSWORD,tables)
-
+    val customerServiceDb = databaseConnectorHelper.getDb(DBConstants.URL_ANTAEUS, DBConstants.DRIVER, DBConstants.USER, DBConstants.PASSWORD)
+    val cronJobServiceDb = databaseConnectorHelper.getDb(DBConstants.URL_ANTAEUS, DBConstants.DRIVER, DBConstants.USER, DBConstants.PASSWORD)
+    val paymentTrackingServiceDb=databaseConnectorHelper.getDb(DBConstants.URL_ANTAEUS, DBConstants.DRIVER, DBConstants.USER, DBConstants.PASSWORD)
     // Set up data access layer.
     val dal = AntaeusDal(db = db)
+    val customerServiceDal = AntaeusDal(db = customerServiceDb)
+    val cronJobServiceDal = AntaeusDal(db = cronJobServiceDb)
+    val paymentTrackingServiceDal = AntaeusDal(db = paymentTrackingServiceDb)
 
     // Insert example data in the database.
     setupInitialData(dal = dal)
@@ -33,9 +38,9 @@ fun main() {
 
     // Create core services
     val invoiceService = InvoiceService(dal = dal)
-    val customerService = CustomerService(dal = dal)
-    val cronJobService = CronJobService(dal = dal)
-    val paymentTrackingService = PaymentTrackingService(dal = dal)
+    val customerService = CustomerService(dal = customerServiceDal)
+    val cronJobService = CronJobService(dal = cronJobServiceDal)
+    val paymentTrackingService = PaymentTrackingService(dal = paymentTrackingServiceDal)
     val paymentProvider = ExternalPaymentProviderImpl()
     val billingService=BillingService(paymentProvider,invoiceService,paymentTrackingService)
     val adhocPaymentService=AdhocPaymentService(billingService, invoiceService)
@@ -49,10 +54,10 @@ fun main() {
 
     // Create REST web service
     AntaeusRest(
-         invoiceService = invoiceService,
-         customerService = customerService,
-         paymentTrackingService=paymentTrackingService,
-         cronJobService = cronJobService,
-         adhocPaymentService=adhocPaymentService
+            invoiceService = invoiceService,
+            customerService = customerService,
+            paymentTrackingService=paymentTrackingService,
+            cronJobService = cronJobService,
+            adhocPaymentService=adhocPaymentService
     ).run()
 }

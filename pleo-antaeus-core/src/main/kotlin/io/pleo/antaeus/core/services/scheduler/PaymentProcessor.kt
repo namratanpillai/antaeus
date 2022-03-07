@@ -6,12 +6,16 @@ import io.pleo.antaeus.core.services.ChannelService
 import io.pleo.antaeus.core.services.InvoiceService
 import io.pleo.antaeus.core.services.reporting.PaymentTrackingService
 import io.pleo.antaeus.core.services.utility.DatabaseConnectionHelper
+import io.pleo.antaeus.core.utility.AntaeusUtil
 import io.pleo.antaeus.core.utility.DBConstants
 import io.pleo.antaeus.data.AntaeusDal
+import io.pleo.antaeus.models.InvoiceIdStatus
 import io.pleo.antaeus.models.InvoiceStatus
+import io.pleo.antaeus.models.external.PaymentResponse
 import mu.KotlinLogging
 import org.quartz.Job
 import org.quartz.JobExecutionContext
+import java.util.concurrent.CompletableFuture
 import java.util.stream.Collectors
 
 class PaymentProcessor(): Job {
@@ -34,22 +38,30 @@ class PaymentProcessor(): Job {
         val invoiceService = InvoiceService(dal = dal)
         val paymentTrackingService = PaymentTrackingService(dal = dal)
 
+        //Fetching only PENDING payments to process
         val invoices = invoiceService.fetchInvoicesByStatusAndCountry(InvoiceStatus.PENDING.name, listOf(countryCode),System.currentTimeMillis())
 
         if(invoices.isEmpty()){
             logger.info { "NO PENDING Payments to process" }
         }
 
+        //Updating the chunk to PROCESSING
+        invoiceService.updateStatusForInvoices(invoices.map { it.id }, InvoiceStatus.PROCESSING.name)
+
         val paymentProvider = ExternalPaymentProviderImpl()
         val billingService = BillingService(paymentProvider = paymentProvider,invoiceService = invoiceService,paymentTrackingService = paymentTrackingService)
 
         val chunkedInvoices= invoices.chunked(10)
 
-        chunkedInvoices.parallelStream().map { i-> ChannelService(billingService).pushInvoiceForProcessing(i)}.collect(Collectors.toList<Unit>())
+        //Stream collect responses
+        var paymentResponse=chunkedInvoices.stream().map { i-> ChannelService(billingService).pushInvoiceForProcessing(i)}.collect(Collectors.toList<List<PaymentResponse>>()).flatten()
+
+        invoiceService.updateStatusForInvoices(paymentResponse.parallelStream().map { r -> AntaeusUtil.convertPaymentResponseToInvoiceIdStatus(r)}.collect(Collectors.toList<InvoiceIdStatus>()))
+
+        paymentTrackingService.trackPayment(paymentResponse)
 
 
-
-    }
+        }
 }
 
 

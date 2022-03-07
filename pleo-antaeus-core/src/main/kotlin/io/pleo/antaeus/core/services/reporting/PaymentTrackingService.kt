@@ -8,9 +8,9 @@ import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.models.PaymentTrackingRequest
 import io.pleo.antaeus.models.external.PaymentResponse
 import io.pleo.antaeus.models.response.PaymentTrackingResponse
+import java.util.stream.Collectors
 
 class PaymentTrackingService(private val dal: AntaeusDal) {
-
 
 
     fun trackPayment(paymentResponse: PaymentResponse):PaymentResponse{
@@ -26,5 +26,17 @@ class PaymentTrackingService(private val dal: AntaeusDal) {
         return dal.fetchAllPayments()
     }
 
+
+    /**
+     * #Serious
+     * Track the status of each [paymentResponses]
+     *
+     * #ROFL
+     * Reporting is key! Fines are a big no! Every response must be tracked perfectoollyyyy
+     */
+     fun trackPayment(paymentResponses: List<PaymentResponse>): List<PaymentResponse> {
+
+        return paymentResponses.stream().map { data -> trackPayment(data) }.collect(Collectors.toList<PaymentResponse>())
+    }
 
 }
