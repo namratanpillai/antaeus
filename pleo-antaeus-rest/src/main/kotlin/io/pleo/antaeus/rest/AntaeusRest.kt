@@ -48,7 +48,7 @@ class AntaeusRest(
 ) : Runnable {
 
     override fun run() {
-        app.start(7001)
+        app.start(7000)
     }
 
     // Set up Javalin rest app

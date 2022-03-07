@@ -136,11 +136,13 @@ I chose approach :two: :
 * Parallel asynchronous calls to External Integrator while performing payments.
 * REST API Request Validations with specific Error Codes
 
-## :factory: Design Patterns to Lookout for(Making life easy for everyone! :fox_face::fox_face:)
+## :factory: Design Patterns to Lookout for :fox_face::fox_face:
 * [Factory Pattern](https://github.com/namratanpillai/antaeus/blob/develop/pleo-antaeus-core/src/main/kotlin/io/pleo/antaeus/core/services/scheduler/jobs/JobFactory.kt) : For Cron Job creation
 * [Template Pattern](https://github.com/namratanpillai/antaeus/blob/develop/pleo-antaeus-core/src/main/kotlin/io/pleo/antaeus/core/services/CronJobService.kt) : Run steps for job execution
 * [Composite Pattern](https://github.com/namratanpillai/antaeus/blob/develop/pleo-antaeus-core/src/main/kotlin/io/pleo/antaeus/core/services/BillingService.kt) : Source data Validations
 
+
+## :post_office: [Click here for Postman](https://github.com/namratanpillai/antaeus/blob/develop/postman/Anateues.postman_collection.json)
 
 ## Nam Stats
 
