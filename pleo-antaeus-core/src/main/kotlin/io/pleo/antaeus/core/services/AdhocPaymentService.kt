@@ -5,6 +5,7 @@ import io.pleo.antaeus.core.utility.ErrorConstants
 import io.pleo.antaeus.models.InvoiceRequest
 import io.pleo.antaeus.models.InvoiceStatus
 import io.pleo.antaeus.models.external.PaymentResponse
+import java.util.concurrent.CompletableFuture
 import java.util.stream.Collectors
 
 class AdhocPaymentService(
@@ -35,10 +36,7 @@ class AdhocPaymentService(
 
         val statusList=validateAllowedStatus(request.status!!)
         val invoicesToProcess=invoiceService.fetch(request.startDate!!,request.endDate!!,request.countryCode!!).filter { i-> statusList.contains(i.status.toString()) }
-        val chunkedInvoices= invoicesToProcess.chunked(10)
-
-        chunkedInvoices.parallelStream().map { i-> ChannelService(billingService).pushInvoiceForProcessing(i)}.collect(Collectors.toList<Unit>())
-        return billingService.billCustomer(invoicesToProcess)
+        return  billingService.billCustomer(invoicesToProcess)
 
     }
 

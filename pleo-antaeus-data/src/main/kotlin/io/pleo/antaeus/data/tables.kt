@@ -26,7 +26,7 @@ object CustomerTable : Table() {
 object PaymentTrackingTable : Table() {
     val id = integer("id")
     val customerId =integer("customer_id")
-    val paymentDate= varchar("payment_date",50)
+    val paymentDate= long("payment_date")
     val responseCode= varchar("response_code", 255)
     val responseMessage= varchar("response_message", 255)
 }

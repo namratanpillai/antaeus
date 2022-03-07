@@ -8,7 +8,6 @@ import io.pleo.antaeus.core.services.validations.ValidateInvoice
 import io.pleo.antaeus.core.services.validations.Validations
 import io.pleo.antaeus.core.services.validations.chainofresp.ValidationResult
 import io.pleo.antaeus.core.utility.AntaeusUtil
-import io.pleo.antaeus.core.utility.ErrorConstants
 import io.pleo.antaeus.models.Invoice
 import io.pleo.antaeus.models.InvoiceIdStatus
 import io.pleo.antaeus.models.InvoiceStatus
@@ -27,34 +26,42 @@ class BillingService(
      * Performs the following steps:
      *      Validates the list of [invoices] (Uses Composite Design Pattern)
      *      Sets the status of the  [invoices] to PROCESSING
-     *      Opens an asynchronous group of connections to the External Payment Provider
+     *      Opens an asynchronous group of connections to the External Payment Provider in chunks of 10
      *      Post receiving all responses back update the payment tracking table.
      *      Updates the status of each [invoices]
-     *
-     *
      */
     fun billCustomer(invoices: List<Invoice>): List<PaymentResponse> {
 
         validate(invoices)
-
         invoiceService.updateStatusForInvoices(invoices.map { it.id }, InvoiceStatus.PROCESSING.name)
-        val response = callPaymentProvider(invoices)
-        CompletableFuture.allOf(*response.toTypedArray())
-        val paymentResponses = trackPaymentStatus(response)
+        val chunkedInvoices = invoices.chunked(10)
+        var responses= chunkPaymentProcessing(chunkedInvoices)
+        val paymentResponses = trackPaymentStatus(responses)
         invoiceService.updateStatusForInvoices(paymentResponses.stream().map { r -> AntaeusUtil.convertPaymentResponseToInvoiceIdStatus(r) }.collect(Collectors.toList<InvoiceIdStatus>()))
         return paymentResponses
 
     }
 
-
+    fun chunkPaymentProcessing(chunkedInvoices:List<List<Invoice>>):List<CompletableFuture<PaymentResponse>>{
+       var responses= mutableListOf<CompletableFuture<PaymentResponse>>()
+       //Do not open too many async connections
+       chunkedInvoices.forEach {
+           var response=callPaymentProvider(it)
+           CompletableFuture.allOf(*response.toTypedArray())
+           responses.addAll(response)
+       }
+       return responses
+   }
 
 
     private fun callPaymentProvider(invoices: List<Invoice>): List<CompletableFuture<PaymentResponse>> {
+
         return invoices.stream().map { i ->  try {
             performPayment(i)
         } catch (e:Exception){
-             CompletableFuture.completedFuture(PaymentResponse(i.id,i.customerId,i.paymentProcessingDate.toString(),"Failed to perform payments",InvoiceStatus.FAILED.name))
+             CompletableFuture.completedFuture(PaymentResponse(i.id,i.customerId,i.paymentProcessingDate,InvoiceStatus.FAILED.name,e.message!!))
         } }.collect(Collectors.toList<CompletableFuture<PaymentResponse>>())
+
     }
 
     private fun performPayment(invoice: Invoice): CompletableFuture<PaymentResponse> {
@@ -97,7 +104,7 @@ class BillingService(
         val result=invoices.stream().map { i -> CompositePaymentProcessingValidationRules(validate).validate(i) }.collect(Collectors.toList<ValidationResult>()).map {  Integer.parseInt(it.id )}
 
         invoiceService.updateStatusForInvoices( result, InvoiceStatus.FAILED_INVALID_DATA.toString())
-        result.stream().map { r->paymentTrackingService.trackPayment(PaymentResponse(r,0,"",InvoiceStatus.FAILED_INVALID_DATA.name,InvoiceStatus.FAILED_INVALID_DATA.name)) }
+        result.stream().map { r->paymentTrackingService.trackPayment(PaymentResponse(r,0,System.currentTimeMillis(),InvoiceStatus.FAILED_INVALID_DATA.name,InvoiceStatus.FAILED_INVALID_DATA.name)) }
 
     }
 }

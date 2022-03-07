@@ -28,7 +28,7 @@ class ExternalPaymentProviderImpl:PaymentProvider {
     override fun charge(invoice: Invoice): PaymentResponse {
 
             val randomResponse = responseMap.entries.shuffled().first()
-            return PaymentResponse(invoice.id, invoice.customerId, Date().toString(), randomResponse.value, randomResponse.key)
+            return PaymentResponse(invoice.id, invoice.customerId, System.currentTimeMillis(), randomResponse.value, randomResponse.key)
 
     }
 }

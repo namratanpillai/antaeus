@@ -22,14 +22,16 @@ import io.pleo.antaeus.core.services.validations.request.ValidatePaymentTracking
 import io.pleo.antaeus.core.utility.AntaeusUtil
 import io.pleo.antaeus.core.utility.ErrorConstants.FAILED_ACTION
 import io.pleo.antaeus.core.utility.ErrorConstants.FAILED_ACTION_MESSAGE
-import io.pleo.antaeus.core.utility.ErrorConstants.INVALID_JOB_DETAILS_MESSAGE
+import io.pleo.antaeus.core.utility.ErrorConstants.INVALID_COUNTRY_CODE
+import io.pleo.antaeus.core.utility.ErrorConstants.INVALID_COUNTRY_CODE_MSSAGE
 import io.pleo.antaeus.core.utility.ErrorConstants.INVOICE_NOT_FOUND
 import io.pleo.antaeus.core.utility.ErrorConstants.INVOICE_NOT_FOUND_MESSAGE
 import io.pleo.antaeus.core.utility.ErrorConstants.JOB_RESCHEDULED_SUCCESS
-import io.pleo.antaeus.core.utility.ErrorConstants.REQUEST_INVALID
+
 import io.pleo.antaeus.core.utility.ErrorConstants.REQUEST_INVALID_CANNOT_BE_NULL_MESSAGE
 import io.pleo.antaeus.core.utility.ErrorConstants.REQUEST_INVALID_PASS_MAX_VALUES_MESSAGE
 import io.pleo.antaeus.core.utility.ErrorConstants.SUCCESS
+import io.pleo.antaeus.models.Country
 import io.pleo.antaeus.models.CronRequest
 import io.pleo.antaeus.models.InvoiceRequest
 import io.pleo.antaeus.models.PaymentTrackingRequest
@@ -107,7 +109,7 @@ class AntaeusRest(
                                 ctx.status(200)
                             }catch(i:InvoiceNotFoundException){
                                 ctx.json(Response(INVOICE_NOT_FOUND,INVOICE_NOT_FOUND_MESSAGE))
-                                ctx.status(500)
+                                ctx.status(400)
                             }catch(i:Exception){
                                 ctx.json(Response(FAILED_ACTION, FAILED_ACTION_MESSAGE))
                                 ctx.status(500)
@@ -117,9 +119,24 @@ class AntaeusRest(
 
                     path("invoices/country") {
                         get(":countryCode") {
-                            val response = invoiceService.fetch(it.pathParam("countryCode"))
-                            logger.info { "Number of invoices for ${response.size}" }
-                            it.json(response)
+
+                            var country=it.pathParam("countryCode")
+
+                            if(!Country.getCountries().contains(country)){
+                                it.json(Response(INVALID_COUNTRY_CODE,INVALID_COUNTRY_CODE_MSSAGE))
+                                it.status(400)
+                                return@get
+                            }
+
+                            try{
+                                val response = invoiceService.fetch(country)
+                                it.json(response)
+                                it.status(200)
+                            }catch (e:java.lang.Exception){
+                                it.json(Response(FAILED_ACTION,e.message!!))
+                                it.status(500)
+                            }
+
                         }
                     }
 
@@ -135,8 +152,8 @@ class AntaeusRest(
                             ctx.json(response)
                             ctx.status(200)
                         }catch (e:java.lang.Exception){
-                            ctx.json(Response(REQUEST_INVALID,e.message!!))
-                            ctx.status(400)
+                            ctx.json(Response(FAILED_ACTION,e.message!!))
+                            ctx.status(500)
                         }
 
                     }
@@ -152,8 +169,8 @@ class AntaeusRest(
                             ctx.json(response)
                             ctx.status(200)
                         }catch (e:java.lang.Exception){
-                            ctx.json(Response(REQUEST_INVALID,e.message!!))
-                            ctx.status(400)
+                            ctx.json(Response(FAILED_ACTION,e.message!!))
+                            ctx.status(500)
                         }
 
                     }
@@ -176,7 +193,14 @@ class AntaeusRest(
                 path("reporting") {
 
                     get {
-                        it.json(paymentTrackingService.fetchAll())
+                        try{
+                            val response=paymentTrackingService.fetchAll()
+                            it.json(response)
+                            it.status(200)
+                        }catch (e:java.lang.Exception){
+                            it.json(Response(FAILED_ACTION,e.message!!))
+                            it.status(500)
+                        }
                     }
 
                     post("/filter") {

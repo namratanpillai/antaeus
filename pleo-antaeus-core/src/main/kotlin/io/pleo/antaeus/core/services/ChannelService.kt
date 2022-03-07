@@ -33,9 +33,8 @@ class ChannelService(
 
             coroutineScope {
                 val uuid=UUID.randomUUID()
-                logger.info { "Launching coroutines: payment-1-$uuid and payment-2-$uuid"}
-                launch (CoroutineName("payment-1-$uuid")){processInvoices(invoicesChannel)}
-                launch (CoroutineName("payment-2-$uuid")){processInvoices(invoicesChannel)} }
+                logger.info { "Launching coroutine: payment-1-$uuid"}
+                launch (CoroutineName("payment-1-$uuid")){processInvoices(invoicesChannel)} }
             }
         logger.info { t }
     }

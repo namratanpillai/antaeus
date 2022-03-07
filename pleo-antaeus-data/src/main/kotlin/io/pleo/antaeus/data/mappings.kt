@@ -25,7 +25,7 @@ fun ResultRow.toInvoice(): Invoice = Invoice(
     status = InvoiceStatus.valueOf(this[InvoiceTable.status]),
     customerId = this[InvoiceTable.customerId],
         countryCode = countryCurrencyMap.get(Currency.valueOf(this[InvoiceTable.currency]))?.country.toString(),
-        paymentProcessingDate = Date(this[InvoiceTable.paymentProcessingDate])
+        paymentProcessingDate = this[InvoiceTable.paymentProcessingDate]
 )
 
 fun ResultRow.toCustomer(): Customer = Customer(
@@ -51,15 +51,6 @@ fun ResultRow.toPaymentResponse(): PaymentResponse = PaymentResponse(
         responseCode=this[PaymentTrackingTable.responseCode],
         responseMessage=this[PaymentTrackingTable.responseMessage]
 )
-
-fun ResultRow.toPaymentResponseFromInvoice(): PaymentResponse = PaymentResponse(
-        id = this[InvoiceTable.id],
-        customerId=this[InvoiceTable.customerId],
-        paymentDate = this[InvoiceTable.paymentProcessingDate].toString(),
-        responseCode=this[InvoiceTable.status],
-        responseMessage=this[InvoiceTable.status]
-)
-
 
 fun ResultRow.toPaymentTrackingResponse(): PaymentTrackingResponse = PaymentTrackingResponse(
         id = this[PaymentTrackingTable.id],

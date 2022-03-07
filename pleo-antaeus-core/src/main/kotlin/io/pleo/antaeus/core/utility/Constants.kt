@@ -36,10 +36,8 @@ object ErrorConstants {
     const val FAILED_ACTION="FAILED_ACTION"
     const val FAILED_ACTION_MESSAGE="Failed to perform action. Please try again later."
 
-
-
     //Request Validation
-    const val REQUEST_INVALID="REQUEST_INVALID"
+
     const val REQUEST_INVALID_CANNOT_BE_NULL_MESSAGE= "Request cannot be null. Certain fields cannot be null"
     const val REQUEST_INVALID_PASS_MAX_VALUES_MESSAGE= "Pass only 10 invoices to process at a time"
 }

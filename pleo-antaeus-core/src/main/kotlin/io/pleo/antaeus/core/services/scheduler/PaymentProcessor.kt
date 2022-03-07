@@ -43,10 +43,7 @@ class PaymentProcessor(): Job {
         val paymentProvider = ExternalPaymentProviderImpl()
         val billingService = BillingService(paymentProvider = paymentProvider,invoiceService = invoiceService,paymentTrackingService = paymentTrackingService)
 
-        val chunkedInvoices= invoices.chunked(10)
-
-        chunkedInvoices.parallelStream().map { i-> ChannelService(billingService).pushInvoiceForProcessing(i)}.collect(Collectors.toList<Unit>())
-
+        ChannelService(billingService).pushInvoiceForProcessing(invoices)
 
 
     }
