@@ -5,8 +5,6 @@ import io.pleo.antaeus.core.utility.ErrorConstants
 import io.pleo.antaeus.models.InvoiceRequest
 import io.pleo.antaeus.models.InvoiceStatus
 import io.pleo.antaeus.models.external.PaymentResponse
-import java.util.concurrent.CompletableFuture
-import java.util.stream.Collectors
 
 class AdhocPaymentService(
     private val billingService: BillingService,
@@ -15,7 +13,7 @@ class AdhocPaymentService(
 
     /**
      * #Serious:
-     * Pass a list of [invoices] that needs to to paid ADHOC.
+     * Pass a list of [invoices] that needs to to paid ADHOC/ or needs to be fixed called FAILED.
      * Use this in case payments failure or if you need a particular payment. This looks past the payment processing date.
      */
     fun adhocBilling(invoices: List<Int>):List<PaymentResponse>{

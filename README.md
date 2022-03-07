@@ -119,7 +119,7 @@ I chose approach :two: :
 3. Added a additional column in the Invoice table called[paymentProcessingDate]. This field ensures that payments for a specific time period can be executed.
 4. Added countries to enable timezone specific runs. This is because currency alone cannot be used as an indicator for the apt timezone to consider.
 5. Assumed that scenarios of Bank holidays etc will be taken care of by the [PaymentProvider]. In case of failures the invoices can be processed manually via the API. Also assumed that all of the customer bank details etc are hed by the [PaymentProvider].
-6. The payment response for the invoice is not only maintained in the status column in the [InvoiceTable] but also in a separate table called [PaymentTrackingTable]. This table is used for reporting, and can be used to store details about the third party process.
+6. The payment response for the invoice is not only maintained in the status column in the [InvoiceTable] but also in a separate table called [PaymentTrackingTable]. This table is used for reporting since all failed and successful payments are tracked, and can be used to store details about the third party process.
 
 
 ### Features Implemented
@@ -132,7 +132,7 @@ I chose approach :two: :
 ### Technical Features
 * Quartz Scheduler
 * DB driven Cron Job configuration
-* Chunk Based Processing using Channels+ CoRoutines. Divided the tasks in chunks to trigger background tasks.
+* Chunk Based Processing using Channels+ CoRoutines.
 * Parallel asynchronous calls to External Integrator while performing payments.
 * REST API Request Validations with specific Error Codes
 
@@ -148,7 +148,7 @@ I chose approach :two: :
 
 Category| Description 
 | :--- | ---: 
-Time taken  | 4 hrs + + 2 hrs + 10 hrs  + 5 hrs + 8 hrs + 2 hrs
+Time taken  | 4 hrs + 2 hrs + 10 hrs  + 5 hrs + 8 hrs + 4 hrs
 Enjoyed doing  | Learning a new language KOTLIN, Thinking through various failure scenarios, Coffee at nights while trying to figure stuff out :coffee: :coffee:
 Struggled with  | Initial setup, Efficient Error/Exception Handling
 Future | Notification system via mail for failure/reporting, Taking care of Region specific Bank holidays, Ability to only check the status of the invoice without actually performing the payments, Cache all error codes to write uniform error code formatting framework

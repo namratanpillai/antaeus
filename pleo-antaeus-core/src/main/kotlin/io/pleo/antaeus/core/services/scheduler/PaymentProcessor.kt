@@ -12,8 +12,11 @@ import io.pleo.antaeus.models.InvoiceStatus
 import mu.KotlinLogging
 import org.quartz.Job
 import org.quartz.JobExecutionContext
-import java.util.stream.Collectors
 
+/*
+*Actual job that is run for processing invoices
+*
+* */
 class PaymentProcessor(): Job {
 
     private val logger = KotlinLogging.logger {}
