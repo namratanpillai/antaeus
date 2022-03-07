@@ -144,13 +144,14 @@ I chose approach :two: :
 
 ## :post_office: [Click here for Postman](https://github.com/namratanpillai/antaeus/blob/develop/postman/Anateues.postman_collection.json)
 
-## Nam Stats
+### Experience
 
 Category| Description 
 | :--- | ---: 
-Time taken  | 4 hrs + + 2 hrs +10 hrs  + 5 hrs + 8 hrs
+Time taken  | 4 hrs + + 2 hrs + 10 hrs  + 5 hrs + 8 hrs + 2 hrs
 Enjoyed doing  | Learning a new language KOTLIN, Thinking through various failure scenarios, Coffee at nights while trying to figure stuff out :coffee: :coffee:
 Struggled with  | Initial setup, Efficient Error/Exception Handling
+Future | Notification system via mail for failure/reporting, Taking care of Region specific Bank holidays, Ability to only check the status of the invoice without actually performing the payments.
 
 
 
